@@ -47,10 +47,7 @@ contract Third is Context, IERC20, Ownable  {
     uint256 public _maxWalletPercent = 5;
     uint256 public _maxWalletDecimal = 1;
 
-    // max transaction  50,000,000,000 tokens
-    uint256 public _maxTxAmount = 50000000000;
-    
-    // Amount tokens must to before adding to liquidity
+    uint256 public _maxTxAmount = _tTotal * _maxTxPercent / 10**2;
     uint256 private numTokensSellToAddToLiquidity = _tTotal * _maxTxPercent / 10**2;
     
     uint256 public _maxWalletAmount = _tTotal * _maxWalletPercent / 10**(2 + _maxWalletDecimal);
