@@ -1,0 +1,28 @@
+{
+  "name": "third-token",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Perelyn-sama/third-token.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Perelyn-sama/third-token/issues"
+  },
+  "homepage": "https://github.com/Perelyn-sama/third-token#readme",
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.4.2",
+    "@uniswap/v2-periphery": "^1.1.0-beta.0",
+    "epoch-cli": "^1.0.2"
+  }
+}

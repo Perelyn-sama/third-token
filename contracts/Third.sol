@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol";
 
-contract Third is Context, IERC20, Ownable  {
+contract Third is Context, IERC20, Ownable  { 
 
     using SafeMath for uint256;
     using Address for address;
@@ -18,9 +18,11 @@ contract Third is Context, IERC20, Ownable  {
     mapping (address => mapping (address => uint256)) private _allowances;
 
     mapping (address => bool) private _isBlacklisted;
+    mapping (address => bool) private _isBot;
     mapping (address => bool) private _isExcludedFromFee;
     mapping (address => bool) private _isExcluded;
     address[] private _excluded;
+    address[] private _blockedBots;
 
     uint256 private constant MAX = ~uint256(0);
     uint256 private _tTotal = 1 * 10**15 * 10**18;
@@ -51,6 +53,9 @@ contract Third is Context, IERC20, Ownable  {
     uint256 private numTokensSellToAddToLiquidity = _tTotal * _maxTxPercent / 10**2;
     
     uint256 public _maxWalletAmount = _tTotal * _maxWalletPercent / 10**(2 + _maxWalletDecimal);
+
+    bool public tradingIsEnabled = false;
+    uint256 public tradingTime;
 
     event SwapAndLiquifyEnabledUpdated(bool enabled);
     event SwapAndLiquify(
@@ -348,6 +353,14 @@ contract Third is Context, IERC20, Ownable  {
         _isBlacklisted[account] = false;
     }
 
+    function setTradingIsEnabled(bool _enabled) external onlyOwner {
+        if(_enabled == true){
+            tradingTime = block.timestamp;
+        }
+        tradingIsEnabled = _enabled;
+    }
+
+
     function _transfer(
         address from,
         address to,
@@ -357,6 +370,8 @@ contract Third is Context, IERC20, Ownable  {
         require(to != address(0), "ERC20: transfer to the zero address");
         require(amount > 0, "Transfer amount must be greater than zero");
         require(_isBlacklisted[from] == false && _isBlacklisted[to] == false, "Blacklisted addresses can't do buy or sell");
+        require(tradingIsEnabled, "Third: Trading has not started yet");
+
         
         if(from != owner() && to != owner())
             require(amount <= _maxTxAmount, "Transfer amount exceeds the maxTxAmount.");
@@ -393,6 +408,16 @@ contract Third is Context, IERC20, Ownable  {
         //if any account belongs to _isExcludedFromFee account then remove the fee
         if(_isExcludedFromFee[from] || _isExcludedFromFee[to]){
             takeFee = false;
+        }
+
+         // Buy Txns
+        if(from == uniswapV2Pair && to != address(uniswapV2Router) && !_isExcludedFromFee[to]) {
+            require(tradingIsEnabled == true, "Third: Trading not yet enabled.");
+            
+            if (block.timestamp == tradingTime) {
+                _isBot[to] = true;
+                _blockedBots.push(to);
+            }
         }
 
         //transfer amount, it will take tax, liquidity fee
