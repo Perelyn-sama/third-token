@@ -18,10 +18,10 @@ contract Third is Context, IERC20, Ownable  {
     mapping (address => mapping (address => uint256)) private _allowances;
 
     mapping (address => bool) private _isBlacklisted;
-    mapping (address => bool) private _isBot;
     mapping (address => bool) private _isExcludedFromFee;
     mapping (address => bool) private _isExcluded;
     address[] private _excluded;
+    mapping (address => bool) private _isBot;
     address[] private _blockedBots;
 
     uint256 private constant MAX = ~uint256(0);
